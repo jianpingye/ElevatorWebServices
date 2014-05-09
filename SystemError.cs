@@ -1,4 +1,8 @@
-﻿using System;
+﻿/*
+**功能：记录错误！
+**描述：当我们把程序封装好之后，别人就看不到调试的信息，我们只能生成到本地的文件里面。
+*/
+using System;
 using System.Collections.Generic;
 using System.Web;
 using System.IO;
