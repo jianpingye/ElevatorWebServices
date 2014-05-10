@@ -4,6 +4,7 @@ using System.Web;
 using System.Data;
 using System.Data.SqlClient;
 using System.Configuration;
+using System.Web.Security;
 
 namespace ElevatorWebServices
 {
@@ -81,27 +82,51 @@ namespace ElevatorWebServices
         {
             try
             {
-                string sql = "SELECT * FROM UserInfo where UserName='" + username + "'";
-                SqlCommand cmd = new SqlCommand(sql, sqlCon);
-                SqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
-                {                   
-                    string pwd = reader.GetString(reader.GetOrdinal("UserPassword"));
-                    //SystemError.SystemLog("Login Error。Error Message:" + pwd);
-                    if (password == pwd)
-                    {
-                        reader.Close();
-                        return "LOGIN_SUCCESS";
-                    }
-                    else
-                    {
-                        reader.Close();
-                        return "PWD_ERROR";
-                    }
+                string pass = FormsAuthentication.HashPasswordForStoringInConfigFile(password, "MD5");
+                //创建SQL语句，该语句用来查询用户输入的用户名和密码是否正确
+                string sqlSel = "select count(*) from UserInfo where UserName=@username and UserPassword=@userpass";
+                //创建SqlCommand对象
+                SqlCommand com = new SqlCommand(sqlSel, sqlCon);
+                //使用Parameters的add方法添加参数类型
+                com.Parameters.Add(new SqlParameter("username", SqlDbType.VarChar, 20));
+                //设置Parameters的参数值
+                com.Parameters["username"].Value = username;
+                com.Parameters.Add(new SqlParameter("userpass", SqlDbType.VarChar, 50));
+                com.Parameters["userpass"].Value = pass;
+                //判断ExecuteScalar方法返回的参数是否大于0大于表示登录成功并给出提示
+                if (Convert.ToInt32(com.ExecuteScalar()) > 0)
+                {
+                    return "LOGIN_SUCCESS";
                 }
-                reader.Close();
-                return "USER_ERROR";
+                else
+                {
+                    return "PWD_ERROR";
+                }
             }
+            //try
+            //{
+            //    string sql = "SELECT * FROM UserInfo where UserName='" + username + "'";
+            //    SqlCommand cmd = new SqlCommand(sql, sqlCon);
+            //    SqlDataReader reader = cmd.ExecuteReader();
+            //    while (reader.Read())
+            //    {                   
+            //        string pwd = reader.GetString(reader.GetOrdinal("UserPassword"));
+            //        //SystemError.SystemLog("Login Error。Error Message:" + pwd);
+            //        string pass = FormsAuthentication.HashPasswordForStoringInConfigFile(password, "MD5");//MD5加密
+            //        if (pass == pwd)
+            //        {
+            //            reader.Close();
+            //            return "LOGIN_SUCCESS";
+            //        }
+            //        else
+            //        {
+            //            reader.Close();
+            //            return "PWD_ERROR";
+            //        }
+            //    }
+            //    reader.Close();
+            //    return "USER_ERROR";
+            //}
             catch (Exception e)
             {
                 //SystemError.SystemLog("Login Error。Error Message:" + e.Message);
@@ -145,10 +170,11 @@ namespace ElevatorWebServices
                 {
                     sqlCon.Open();
                 }
+                string pass = FormsAuthentication.HashPasswordForStoringInConfigFile(password, "MD5");//MD5加密
                 string sql1 = "INSERT INTO UserInfo"
                     + "(UserName,UserPassword,UserBirthday,UserSex,UserPhone,UesrRealName,UserLevel,IsDelete,CreateTime)"
                     + "VALUES" +
-                    "('" + username + "','" + password + "','" + birthday + "','" + usersex + "','" + telephone + "','" + userrealname + "','" + 1 + "','" + 0 + "','" + DateTime.Now.ToString() + "')";
+                    "('" + username + "','" + pass + "','" + birthday + "','" + usersex + "','" + telephone + "','" + userrealname + "','" + 1 + "','" + 0 + "','" + DateTime.Now.ToString() + "')";
                 SqlCommand cmd1 = new SqlCommand(sql1, sqlCon);
                 int i = cmd1.ExecuteNonQuery();
                 if (i != 0 && i != -1)
@@ -220,11 +246,12 @@ namespace ElevatorWebServices
         /// <param name="oldpassword"></param>
         /// <param name="userphone"></param>
         /// <returns></returns>
-        public string changePassword(string username, string userphone)
+        public string changePassword(string username, string userpassword)
         {
             try
             {
-                string sql = "UPDATE UserInfo set UserPassword = '" + userphone + "' where UserName='" + username + "'";
+                string pass = FormsAuthentication.HashPasswordForStoringInConfigFile(userpassword, "MD5");//MD5加密
+                string sql = "UPDATE UserInfo set UserPassword = '" + pass + "' where UserName='" + username + "'";
                 SqlCommand cmd = new SqlCommand(sql, sqlCon);
                 int i = cmd.ExecuteNonQuery();
                 if (i != 0 && i != -1)
