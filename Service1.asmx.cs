@@ -151,5 +151,29 @@ namespace ElevatorWebServices
 
        }
 
+        [WebMethod(Description = "新建任务，返回是否成功")]
+        public string NewTask(string username, char ElevatorId, string unit)
+        {
+            try
+            {
+                switch(db.NewTask(username, ElevatorId, unit))
+                {
+                    case "SUCCESS":
+                        return "SUCCSEE";
+                    case "FAIL":
+                        return "FAIL";
+                    case "USER_ERROR":
+                        return "USER_ERROR";
+                    default: return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                SystemError.SystemLog("changeTelephone Error。Error Message:" + ex.Message);
+                return ex.Message.ToString();
+            }
+
+        }
+
     }
 }

@@ -308,5 +308,83 @@ namespace ElevatorWebServices
         }
         #endregion 修改用户电话号码
 
+        #region 新建任务
+        /// <summary>
+        /// 新建任务
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="elevaterid"></param>
+        /// <param name="unit"></param>
+        /// <param name="?"></param>
+        /// <returns></returns>
+        public string NewTask(string username,char elevaterid, string unit)
+        {
+            int id=0;
+            try
+            {
+                string sql = "SELECT * FROM UserInfo where UserName='" + username + "'";
+                SqlCommand cmd = new SqlCommand(sql, sqlCon);
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    id = reader.GetInt32(reader.GetOrdinal("Password"));
+                }
+                reader.Close();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            finally
+            {
+                Dispose();
+            }
+            if (id == 0)//查找不到该员工
+            {
+                return "USER_ERROR";
+            }
+            else
+            {
+                try
+                {
+                    string sql1 = "INSERT INTO UserInfo"
+                        + "(UserId,ElevatorId,Unit,TaskStatus,CreateTime)"
+                        + "VALUES" +
+                        "('" + id + "','" + elevaterid + "','" + unit + "','" + 1 + "','" + DateTime.Now.ToString() + "')";
+                    SqlCommand cmd1 = new SqlCommand(sql1, sqlCon);
+                    int i = cmd1.ExecuteNonQuery();
+                    if (i != 0 && i != -1)
+                    {
+                        return "SUCCESS";
+                    }
+                    else
+                    {
+                        return "FAIL";
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+                finally
+                {
+                    Dispose();
+                }
+            }
+        }
+        #endregion 新建任务
+
+        #region 按员工名字查询任务
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
+        public string findTask(string username) 
+        {
+            return null;
+        }
+        #endregion 员工查询任务
+
     }
 }
