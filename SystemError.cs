@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using System.Web;
 using System.IO;
 using System.Web.UI;
++﻿/*
+ 
+  2    +**功能：记录错误！
+ 
+  3    +**描述：当我们把程序封装好之后，别人就看不到调试的信息，我们只能生成到本地的文件里面。
+ 
+  4    +*/
+ 
 
 namespace ElevatorWebServices
 {
